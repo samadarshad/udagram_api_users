@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - 13
+
+services:
+  - docker
+
+# Pre-testing installs
+install:
+  - npm ci
+
+# Scripts to be run such as tests
+before_script:
+  - echo "no tests"
+
+script:
+  - npm run build
+  - docker --version # print the version for logging
+  - docker build -t udagram_api_feed .
+  - docker tag simple-node samadarshad/udagram_api_feed:${TRAVIS_COMMIT::8}
+
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push samadarshad/udagram_api_feed:${TRAVIS_COMMIT::8}
